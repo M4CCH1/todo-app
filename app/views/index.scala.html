@@ -1,0 +1,71 @@
+@(todos: List[models.Todo])
+
+@main("Todoアプリ") {
+
+    <h1>Todoアプリ</h1>
+
+    <h2>Todo追加</h2>
+
+    <form action="@routes.HomeController.create()" method="POST">
+
+        <input
+            type="text"
+            name="title"
+            placeholder="Todoを入力してください"
+            required
+        >
+
+        <button type="submit">追加</button>
+
+    </form>
+
+    <h2>Todo一覧</h2>
+
+    <ul>
+        @for(todo <- todos) {
+
+            <li>
+                @todo.getTitle()
+
+                @if(todo.isCompleted()) {
+                    <span>（完了）</span>
+                } else {
+                    <span>（未完了）</span>
+                }
+
+                <form
+                    action="@routes.HomeController.toggleCompleted(todo.getId())"
+                    method="POST"
+                    style="display: inline;"
+                >
+                    @if(todo.isCompleted()) {
+                        <button type="submit">未完了に戻す</button>
+                    } else {
+                        <button type="submit">完了にする</button>
+                    }
+                </form>
+                <form
+                    action="@routes.HomeController.delete(todo.getId())"
+                    method="POST"
+                    style="display: inline;"
+                >
+                    <button type="submit">削除</button>
+                </form>
+                <form
+                    action="@routes.HomeController.updateTitle(todo.getId())"
+                    method="POST"
+                    style="display: inline;"
+                >
+                    <input
+                        type="text"
+                        name="title"
+                        value="@todo.getTitle()"
+                        required
+                    >
+
+                    <button type="submit">更新</button>
+                </form>
+            </li>
+        }
+    </ul>
+}

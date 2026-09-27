@@ -1,0 +1,13 @@
+# Routes
+
+GET     /                           controllers.HomeController.index()
+
+POST    /todos                      controllers.HomeController.create(request: Request)
+
+POST    /todos/:id/toggle           controllers.HomeController.toggleCompleted(id: Long)
+
+POST    /todos/:id/delete           controllers.HomeController.delete(id: Long)
+
+POST    /todos/:id/update           controllers.HomeController.updateTitle(id: Long, request: Request)
+
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
