@@ -191,4 +191,64 @@ public class TodoRepository {
             throw new RuntimeException(e);
         }
     }
+
+    public void update(
+            Long id,
+            LocalDate registrationDate,
+            LocalTime registrationTime,
+            String title,
+            String taskContent,
+            int taskProgress,
+            String taskNote) {
+
+        String sql = """
+            UPDATE todos
+            SET
+                registration_date = ?,
+                registration_time = ?,
+                title = ?,
+                task_content = ?,
+                task_progress = ?,
+                task_note = ?,
+                completed = ?
+            WHERE id = ?
+            """;
+
+        try (Connection connection = database.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            if (registrationDate != null) {
+                statement.setDate(
+                    1,
+                    java.sql.Date.valueOf(registrationDate)
+                );
+            } else {
+                statement.setNull(1, java.sql.Types.DATE);
+            }
+
+            if (registrationTime != null) {
+                statement.setTime(
+                    2,
+                    java.sql.Time.valueOf(registrationTime)
+                );
+            } else {
+                statement.setNull(2, java.sql.Types.TIME);
+            }
+
+            statement.setString(3, title);
+            statement.setString(4, taskContent);
+            statement.setInt(5, taskProgress);
+            statement.setString(6, taskNote);
+
+            // 進捗100%なら完了
+            statement.setBoolean(7, taskProgress == 100);
+
+            statement.setLong(8, id);
+
+            statement.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

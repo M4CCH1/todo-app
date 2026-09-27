@@ -8,6 +8,6 @@ POST    /todos/:id/toggle           controllers.HomeController.toggleCompleted(i
 
 POST    /todos/:id/delete           controllers.HomeController.delete(id: Long)
 
-POST    /todos/:id/update           controllers.HomeController.updateTitle(id: Long, request: Request)
+POST    /todos/:id/update           controllers.HomeController.update(id: Long, request: Request)
 
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

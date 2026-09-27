@@ -146,4 +146,94 @@ public class HomeController extends Controller {
 
         return redirect(routes.HomeController.index());
     }
+
+    public Result update(Long id, Http.Request request) {
+
+        var form = request.body().asFormUrlEncoded();
+
+        String registrationDateText =
+                form.getOrDefault("registrationDate", new String[]{""})[0].trim();
+
+        String registrationTimeText =
+                form.getOrDefault("registrationTime", new String[]{""})[0].trim();
+
+        String title =
+                form.getOrDefault("title", new String[]{""})[0].trim();
+
+        String taskContent =
+                form.getOrDefault("taskContent", new String[]{""})[0].trim();
+
+        String taskProgressText =
+                form.getOrDefault("taskProgress", new String[]{"0"})[0].trim();
+
+        String taskNote =
+                form.getOrDefault("taskNote", new String[]{""})[0].trim();
+
+        // タスク名
+        if (title.isEmpty()) {
+            return badRequest("タスク名を入力してください");
+        }
+
+        if (title.length() > 15) {
+            return badRequest("タスク名は15文字以内で入力してください");
+        }
+
+        // 内容
+        if (taskContent.isEmpty()) {
+            return badRequest("内容を入力してください");
+        }
+
+        if (taskContent.length() > 30) {
+            return badRequest("内容は30文字以内で入力してください");
+        }
+
+        // 備考
+        if (taskNote.length() > 30) {
+            return badRequest("備考は30文字以内で入力してください");
+        }
+
+        // 年月日
+        LocalDate registrationDate = null;
+
+        if (!registrationDateText.isEmpty()) {
+            registrationDate = LocalDate.parse(registrationDateText);
+        }
+
+        // 時間
+        LocalTime registrationTime = null;
+
+        if (!registrationTimeText.isEmpty()) {
+
+            if (registrationDate == null) {
+                return badRequest("時間を入力する場合は年月日も入力してください");
+            }
+
+            registrationTime = LocalTime.parse(registrationTimeText);
+        }
+
+        // 進捗
+        int taskProgress;
+
+        try {
+            taskProgress = Integer.parseInt(taskProgressText);
+        } catch (NumberFormatException e) {
+            return badRequest("進捗は0～100の整数で入力してください");
+        }
+
+        if (taskProgress < 0 || taskProgress > 100) {
+            return badRequest("進捗は0～100で入力してください");
+        }
+
+        todoRepository.update(
+                id,
+                registrationDate,
+                registrationTime,
+                title,
+                taskContent,
+                taskProgress,
+                taskNote
+        );
+
+        return redirect(routes.HomeController.index());
+    }
 }

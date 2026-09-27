@@ -123,6 +123,57 @@
 
                     <td>
                         <form
+                            action="@routes.HomeController.update(todo.getId())"
+                            method="POST"
+                            style="display: inline;"
+                        >
+                            <input
+                                type="date"
+                                name="registrationDate"
+                                value="@if(todo.getRegistrationDate() != null) {@todo.getRegistrationDate()}"
+                            >
+
+                            <input
+                                type="time"
+                                name="registrationTime"
+                                value="@if(todo.getRegistrationTime() != null) {@todo.getRegistrationTime()}"
+                            >
+
+                            <input
+                                type="text"
+                                name="title"
+                                value="@todo.getTitle()"
+                                maxlength="15"
+                                required
+                            >
+
+                            <input
+                                type="text"
+                                name="taskContent"
+                                value="@if(todo.getTaskContent() != null) {@todo.getTaskContent()}"
+                                maxlength="30"
+                                required
+                            >
+
+                            <input
+                                type="number"
+                                name="taskProgress"
+                                value="@todo.getTaskProgress()"
+                                min="0"
+                                max="100"
+                                required
+                            >
+
+                            <input
+                                type="text"
+                                name="taskNote"
+                                value="@if(todo.getTaskNote() != null) {@todo.getTaskNote()}"
+                                maxlength="30"
+                            >
+
+                            <button type="submit">更新</button>
+                        </form>
+                        <form
                             action="@routes.HomeController.delete(todo.getId())"
                             method="POST"
                             style="display: inline;"
