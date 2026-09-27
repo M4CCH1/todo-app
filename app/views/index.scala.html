@@ -4,68 +4,134 @@
 
     <h1>Todoアプリ</h1>
 
-    <h2>Todo追加</h2>
+    <h2>追加タスク</h2>
 
     <form action="@routes.HomeController.create()" method="POST">
 
-        <input
-            type="text"
-            name="title"
-            placeholder="Todoを入力してください"
-            required
-        >
+        <label>
+            年月日
+            <input
+                type="date"
+                name="registrationDate"
+            >
+        </label>
+
+        <label>
+            時間
+            <input
+                type="time"
+                name="registrationTime"
+            >
+        </label>
+
+        <label>
+            タスク名
+            <input
+                type="text"
+                name="title"
+                maxlength="15"
+                required
+            >
+        </label>
+
+        <label>
+            内容
+            <input
+                type="text"
+                name="taskContent"
+                maxlength="30"
+                required
+            >
+        </label>
+
+        <label>
+            進捗
+            <input
+                type="number"
+                name="taskProgress"
+                min="0"
+                max="100"
+                value="0"
+                required
+            >
+            %
+        </label>
+
+        <label>
+            備考
+            <input
+                type="text"
+                name="taskNote"
+                maxlength="30"
+            >
+        </label>
 
         <button type="submit">追加</button>
 
+        <button type="reset">クリア</button>
+
     </form>
+    <h2>現在のタスク</h2>
 
-    <h2>Todo一覧</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>年月日</th>
+                <th>時間</th>
+                <th>タスク名</th>
+                <th>内容</th>
+                <th>進捗</th>
+                <th>備考</th>
+                <th>操作</th>
+            </tr>
+        </thead>
 
-    <ul>
-        @for(todo <- todos) {
+        <tbody>
+            @for(todo <- todos) {
+                <tr>
+                    <td>
+                        @if(todo.getRegistrationDate() != null) {
+                            @todo.getRegistrationDate()
+                        }
+                    </td>
 
-            <li>
-                @todo.getTitle()
+                    <td>
+                        @if(todo.getRegistrationTime() != null) {
+                            @todo.getRegistrationTime()
+                        }
+                    </td>
 
-                @if(todo.isCompleted()) {
-                    <span>（完了）</span>
-                } else {
-                    <span>（未完了）</span>
-                }
+                    <td>
+                        @todo.getTitle()
+                    </td>
 
-                <form
-                    action="@routes.HomeController.toggleCompleted(todo.getId())"
-                    method="POST"
-                    style="display: inline;"
-                >
-                    @if(todo.isCompleted()) {
-                        <button type="submit">未完了に戻す</button>
-                    } else {
-                        <button type="submit">完了にする</button>
-                    }
-                </form>
-                <form
-                    action="@routes.HomeController.delete(todo.getId())"
-                    method="POST"
-                    style="display: inline;"
-                >
-                    <button type="submit">削除</button>
-                </form>
-                <form
-                    action="@routes.HomeController.updateTitle(todo.getId())"
-                    method="POST"
-                    style="display: inline;"
-                >
-                    <input
-                        type="text"
-                        name="title"
-                        value="@todo.getTitle()"
-                        required
-                    >
+                    <td>
+                        @if(todo.getTaskContent() != null) {
+                            @todo.getTaskContent()
+                        }
+                    </td>
 
-                    <button type="submit">更新</button>
-                </form>
-            </li>
-        }
-    </ul>
+                    <td>
+                        @todo.getTaskProgress()%
+                    </td>
+
+                    <td>
+                        @if(todo.getTaskNote() != null) {
+                            @todo.getTaskNote()
+                        }
+                    </td>
+
+                    <td>
+                        <form
+                            action="@routes.HomeController.delete(todo.getId())"
+                            method="POST"
+                            style="display: inline;"
+                        >
+                            <button type="submit">削除</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }

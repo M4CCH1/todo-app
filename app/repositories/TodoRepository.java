@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class TodoRepository {
 
@@ -23,18 +25,47 @@ public class TodoRepository {
 
         List<Todo> todos = new ArrayList<>();
 
-        String sql = "SELECT id, title, completed FROM todos ORDER BY id";
+        String sql = """
+            SELECT
+                id,
+                title,
+                completed,
+                registration_date,
+                registration_time,
+                task_content,
+                task_progress,
+                task_note,
+                create_time,
+                update_time
+            FROM todos
+            ORDER BY id
+            """;
 
         try (Connection connection = database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
 
                 Todo todo = new Todo(
                     resultSet.getInt("id"),
                     resultSet.getString("title"),
-                    resultSet.getBoolean("completed")
+                    resultSet.getBoolean("completed"),
+
+                    resultSet.getDate("registration_date") != null
+                        ? resultSet.getDate("registration_date").toLocalDate()
+                        : null,
+
+                    resultSet.getTime("registration_time") != null
+                        ? resultSet.getTime("registration_time").toLocalTime()
+                        : null,
+
+                    resultSet.getString("task_content"),
+                    resultSet.getInt("task_progress"),
+                    resultSet.getString("task_note"),
+
+                    resultSet.getTimestamp("create_time").toLocalDateTime(),
+                    resultSet.getTimestamp("update_time").toLocalDateTime()
                 );
 
                 todos.add(todo);
@@ -47,14 +78,62 @@ public class TodoRepository {
         return todos;
     }
 
-    public void create(String title) {
+    public void create(
+            LocalDate registrationDate,
+            LocalTime registrationTime,
+            String title,
+            String taskContent,
+            int taskProgress,
+            String taskNote) {
 
-        String sql = "INSERT INTO todos (title, completed) VALUES (?, FALSE)";
+        String sql = """
+            INSERT INTO todos (
+                registration_date,
+                registration_time,
+                title,
+                task_content,
+                task_progress,
+                task_note,
+                completed
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
 
         try (Connection connection = database.getConnection();
             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString(1, title);
+            if (registrationDate != null) {
+                statement.setDate(
+                    1,
+                    java.sql.Date.valueOf(registrationDate)
+                );
+            } else {
+                statement.setNull(
+                    1,
+                    java.sql.Types.DATE
+                );
+            }
+
+            if (registrationTime != null) {
+                statement.setTime(
+                    2,
+                    java.sql.Time.valueOf(registrationTime)
+                );
+            } else {
+                statement.setNull(
+                    2,
+                    java.sql.Types.TIME
+                );
+            }
+
+            statement.setString(3, title);
+            statement.setString(4, taskContent);
+            statement.setInt(5, taskProgress);
+            statement.setString(6, taskNote);
+
+            // 進捗100%なら完了扱い
+            statement.setBoolean(7, taskProgress == 100);
+
             statement.executeUpdate();
 
         } catch (Exception e) {
